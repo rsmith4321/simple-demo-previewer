@@ -62,7 +62,7 @@ function sdp_register_cpt() {
 		'has_archive' => true,
 		'supports'    => array( 'title', 'thumbnail', 'page-attributes' ),
 		'menu_icon'   => 'dashicons-desktop',
-		'rewrite'     => array( 'slug' => 'demo' ),
+		'rewrite'     => array( 'slug' => 'examples' ),
 	));
 }
 
