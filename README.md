@@ -29,12 +29,12 @@ The previewer includes dynamic device-toggle icons so your potential clients can
 
 ---
 
-## 📥 How to Download & Install from GitHub
+## 📥 How to Download & Install
 
-You can easily install this plugin directly from this repository:
+You can easily install this plugin directly from our official releases:
 
-1. Click the green **Code** button at the top of this page.
-2. Select **Download ZIP** from the dropdown menu to save the plugin to your computer.
+1. On the right side of this page, look for the **Releases** section and click on the latest version.
+2. Under the **Assets** dropdown, click on **`simple-demo-previewer.zip`** to download the plugin to your computer.
 3. Log in to your WordPress dashboard.
 4. Navigate to **Plugins > Add New Plugin** and click the **Upload Plugin** button at the top.
 5. Choose the `.zip` file you just downloaded and click **Install Now**.
