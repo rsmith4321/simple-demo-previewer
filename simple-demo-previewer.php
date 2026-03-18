@@ -60,7 +60,7 @@ function sdp_register_cpt() {
 		),
 		'public'      => true,
 		'has_archive' => true,
-		'supports'    => array( 'title', 'thumbnail' ),
+		'supports'    => array( 'title', 'thumbnail', 'page-attributes' ),
 		'menu_icon'   => 'dashicons-desktop',
 		'rewrite'     => array( 'slug' => 'demo' ),
 	));
@@ -149,10 +149,19 @@ function sdp_hub_setup_page_html() {
 							<p><?php esc_html_e( 'The plugin automatically generated a page called ', 'simple-demo-previewer' ); ?><strong><?php esc_html_e( '"Example Sites"', 'simple-demo-previewer' ); ?></strong> <?php esc_html_e( 'upon activation. You can find this in your standard WordPress ', 'simple-demo-previewer' ); ?><strong><?php esc_html_e( 'Pages', 'simple-demo-previewer' ); ?></strong> <?php esc_html_e( 'menu.', 'simple-demo-previewer' ); ?></p>
 							<p><?php esc_html_e( 'If you wish to display your directory on a different page, simply paste this shortcode anywhere on your site:', 'simple-demo-previewer' ); ?></p>
 							<p><code style="font-size: 16px; padding: 5px 10px; display: inline-block;">[demo_sites_hub]</code></p>
+							
+							<hr style="margin: 20px 0;">
+							
+							<h3><?php esc_html_e( '4. Custom Sorting (Menu Order)', 'simple-demo-previewer' ); ?></h3>
+							<p><?php esc_html_e( 'To change the order of your sites, look for the "Post Attributes" box on the right-hand sidebar when editing a Demo Site.', 'simple-demo-previewer' ); ?></p>
+							<ul style="list-style-type: disc; margin-left: 20px;">
+								<li><?php esc_html_e( 'Lower numbers (like 0 or 1) appear first.', 'simple-demo-previewer' ); ?></li>
+								<li><?php esc_html_e( 'For drag-and-drop sorting, we recommend the free "Simple Custom Post Order" plugin.', 'simple-demo-previewer' ); ?></li>
+							</ul>
 
 							<hr style="margin: 20px 0;">
 
-							<h3><?php esc_html_e( '4. SEO Best Practices', 'simple-demo-previewer' ); ?></h3>
+							<h3><?php esc_html_e( '5. SEO Best Practices', 'simple-demo-previewer' ); ?></h3>
 							<p><?php esc_html_e( 'By default, this plugin hides the SEO meta boxes on Demo Sites and adds a "noindex" tag. Why?', 'simple-demo-previewer' ); ?></p>
 							<ul style="list-style-type: disc; margin-left: 20px;">
 								<li><?php esc_html_e( 'Since the previewer loads your actual websites inside an iframe, allowing search engines to index these preview pages can cause ', 'simple-demo-previewer' ); ?><strong><?php esc_html_e( 'duplicate content', 'simple-demo-previewer' ); ?></strong><?php esc_html_e( ' penalties against your main sites.', 'simple-demo-previewer' ); ?></li>
@@ -277,7 +286,7 @@ function sdp_render_preview_page() {
 		if ( empty( $demo_url ) ) { $demo_url = home_url(); }
 		$close_url = home_url( '/example-sites/' );
 
-		$all_demos = get_posts( array( 'post_type' => 'demo_site', 'posts_per_page' => -1, 'post_status' => 'publish', 'orderby' => 'title', 'order' => 'ASC' ) );
+		$all_demos = get_posts( array( 'post_type' => 'demo_site', 'posts_per_page' => -1, 'post_status' => 'publish', 'orderby' => 'menu_order title', 'order' => 'ASC' ) );
 		$site_name = get_bloginfo( 'name' );
 
 		$topbar_bg = get_option( 'sdp_topbar_bg', '#ffffff' );
@@ -403,7 +412,7 @@ function sdp_hub_shortcode() {
 		'post_type'      => 'demo_site',
 		'posts_per_page' => -1,
 		'post_status'    => 'publish',
-		'orderby'        => 'title',
+		'orderby'        => 'menu_order title',
 		'order'          => 'ASC'
 	));
 
