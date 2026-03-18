@@ -467,7 +467,7 @@ function sdp_hub_shortcode() {
 		.sdp-demo-thumbnail img { width: 100%; height: auto; aspect-ratio: 16/9; object-fit: cover; display: block; transition: transform 0.3s ease; }
 		.sdp-demo-card:hover .sdp-demo-thumbnail img { transform: scale(1.05); }
 		.sdp-demo-title { margin: 0 0 20px 0; font-size: 20px; color: #1f2937; font-weight: 600; }
-		.sdp-demo-btn { display: inline-block; background: <?php echo esc_attr( $button_bg ); ?>; color: <?php echo esc_attr( $button_text ); ?>; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: 500; transition: filter 0.2s ease, transform 0.1s ease; }
+		.sdp-demo-btn { display: inline-block; background: <?php echo esc_attr( $button_bg ); ?> !important; color: <?php echo esc_attr( $button_text ); ?> !important; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: 500; transition: filter 0.2s ease, transform 0.1s ease; }
 		.sdp-demo-btn:hover { filter: brightness(0.85); color: <?php echo esc_attr( $button_text ); ?>; }
 		.sdp-demo-btn:active { transform: scale(0.98); }
 	</style>
