@@ -2,8 +2,8 @@
 /**
  * Plugin Name: Simple Demo Previewer
  * Plugin URI: https://github.com/rsmith4321/simple-demo-previewer
- * Description: Automatically generates a beautiful, full-screen, responsive iframe previewer and a central hub page to show off your website themes.
- * Version: 1.9.2
+ * Description: Automatically generates a beautiful, full-screen, responsive iframe previewer and a central hub page to show off your website themes. Includes drag-and-drop ordering.
+ * Version: 2.0.0
  * Author: Shoreline Web Designs
  * Author URI: https://shorelinewebdesigns.com/
  * Text Domain: simple-demo-previewer
@@ -14,7 +14,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
 
-// 1. Reusable function to create the Hub Page (Updated to remove deprecated get_page_by_title)
+// -----------------------------------------------------------------------------
+// 1. REUSABLE FUNCTION TO CREATE THE HUB PAGE
+// -----------------------------------------------------------------------------
 function sdp_create_hub_page() {
 	$page_title = 'Example Sites';
 	
@@ -41,22 +43,30 @@ function sdp_create_hub_page() {
 	return false; 
 }
 
-// 2. Activation Hook
+// -----------------------------------------------------------------------------
+// 2. ACTIVATION HOOK
+// -----------------------------------------------------------------------------
 register_activation_hook( __FILE__, 'sdp_plugin_activation' );
 function sdp_plugin_activation() {
 	sdp_create_hub_page();
 }
 
-// 3. Register the "Demo Sites" Custom Post Type
+// -----------------------------------------------------------------------------
+// 3. REGISTER THE "DEMO SITES" CUSTOM POST TYPE (Updated Labels)
+// -----------------------------------------------------------------------------
 add_action( 'init', 'sdp_register_cpt' );
 function sdp_register_cpt() {
 	register_post_type( 'demo_site', array(
 		'labels' => array(
-			'name'          => __( 'Demo Sites', 'simple-demo-previewer' ),
-			'singular_name' => __( 'Demo Site', 'simple-demo-previewer' ),
-			'add_new_item'  => __( 'Add New Demo Site', 'simple-demo-previewer' ),
-			'edit_item'     => __( 'Edit Demo Site', 'simple-demo-previewer' ),
-			'all_items'     => __( 'All Demo Sites', 'simple-demo-previewer' ),
+			'name'                  => __( 'Demo Sites', 'simple-demo-previewer' ),
+			'singular_name'         => __( 'Demo Site', 'simple-demo-previewer' ),
+			'add_new_item'          => __( 'Add New Demo Site', 'simple-demo-previewer' ),
+			'edit_item'             => __( 'Edit Demo Site', 'simple-demo-previewer' ),
+			'all_items'             => __( 'All Demo Sites', 'simple-demo-previewer' ),
+			'featured_image'        => __( 'Website Thumbnail', 'simple-demo-previewer' ),
+			'set_featured_image'    => __( 'Set Website Thumbnail', 'simple-demo-previewer' ),
+			'remove_featured_image' => __( 'Remove Website Thumbnail', 'simple-demo-previewer' ),
+			'use_featured_image'    => __( 'Use as Website Thumbnail', 'simple-demo-previewer' ),
 		),
 		'public'      => true,
 		'has_archive' => true,
@@ -66,7 +76,9 @@ function sdp_register_cpt() {
 	));
 }
 
-// 4. Create the Admin Submenu for the Dashboard/Setup
+// -----------------------------------------------------------------------------
+// 4. CREATE THE ADMIN SUBMENU
+// -----------------------------------------------------------------------------
 add_action( 'admin_menu', 'sdp_add_admin_menu' );
 function sdp_add_admin_menu() {
 	add_submenu_page(
@@ -79,7 +91,9 @@ function sdp_add_admin_menu() {
 	);
 }
 
-// 5. Output the Admin Settings & Instructions Page HTML
+// -----------------------------------------------------------------------------
+// 5. ADMIN SETTINGS & INSTRUCTIONS PAGE HTML (Updated Instructions)
+// -----------------------------------------------------------------------------
 function sdp_hub_setup_page_html() {
 	if ( ! current_user_can( 'manage_options' ) ) return;
 	
@@ -93,23 +107,15 @@ function sdp_hub_setup_page_html() {
 		}
 	}
 
-	// Handle Plugin Settings Save (Added strict isset, unslash, and sanitization checks)
+	// Handle Plugin Settings Save
 	if ( isset( $_POST['sdp_save_settings'] ) && check_admin_referer( 'sdp_save_settings_action', 'sdp_save_settings_nonce' ) ) {
 		$disable_seo = isset( $_POST['sdp_disable_seo'] ) ? 'yes' : 'no';
 		update_option( 'sdp_disable_seo', $disable_seo );
 		
-		if ( isset( $_POST['sdp_topbar_bg'] ) ) {
-			update_option( 'sdp_topbar_bg', sanitize_hex_color( wp_unslash( $_POST['sdp_topbar_bg'] ) ) );
-		}
-		if ( isset( $_POST['sdp_topbar_text'] ) ) {
-			update_option( 'sdp_topbar_text', sanitize_hex_color( wp_unslash( $_POST['sdp_topbar_text'] ) ) );
-		}
-		if ( isset( $_POST['sdp_button_bg'] ) ) {
-			update_option( 'sdp_button_bg', sanitize_hex_color( wp_unslash( $_POST['sdp_button_bg'] ) ) );
-		}
-		if ( isset( $_POST['sdp_button_text'] ) ) {
-			update_option( 'sdp_button_text', sanitize_hex_color( wp_unslash( $_POST['sdp_button_text'] ) ) );
-		}
+		if ( isset( $_POST['sdp_topbar_bg'] ) ) update_option( 'sdp_topbar_bg', sanitize_hex_color( wp_unslash( $_POST['sdp_topbar_bg'] ) ) );
+		if ( isset( $_POST['sdp_topbar_text'] ) ) update_option( 'sdp_topbar_text', sanitize_hex_color( wp_unslash( $_POST['sdp_topbar_text'] ) ) );
+		if ( isset( $_POST['sdp_button_bg'] ) ) update_option( 'sdp_button_bg', sanitize_hex_color( wp_unslash( $_POST['sdp_button_bg'] ) ) );
+		if ( isset( $_POST['sdp_button_text'] ) ) update_option( 'sdp_button_text', sanitize_hex_color( wp_unslash( $_POST['sdp_button_text'] ) ) );
 		
 		echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__( 'Settings saved successfully!', 'simple-demo-previewer' ) . '</p></div>';
 	}
@@ -139,8 +145,8 @@ function sdp_hub_setup_page_html() {
 							<h3><?php esc_html_e( '2. Add Beautiful Thumbnails', 'simple-demo-previewer' ); ?></h3>
 							<p><?php esc_html_e( 'To make your directory grid look professional, upload a screenshot of your site layout.', 'simple-demo-previewer' ); ?></p>
 							<ul style="list-style-type: disc; margin-left: 20px;">
-								<li><?php esc_html_e( 'While editing a Demo Site, look in the right-hand sidebar for the ', 'simple-demo-previewer' ); ?><strong><?php esc_html_e( 'Featured Image', 'simple-demo-previewer' ); ?></strong> <?php esc_html_e( 'box.', 'simple-demo-previewer' ); ?></li>
-								<li><?php esc_html_e( 'Upload a high-quality screenshot. The plugin will automatically crop and optimize it to a perfect 16:9 ratio for your grid cards.', 'simple-demo-previewer' ); ?></li>
+								<li><?php esc_html_e( 'While editing a Demo Site, look right below the URL setting for the ', 'simple-demo-previewer' ); ?><strong><?php esc_html_e( 'Website Thumbnail', 'simple-demo-previewer' ); ?></strong> <?php esc_html_e( 'box.', 'simple-demo-previewer' ); ?></li>
+								<li><?php esc_html_e( 'Upload a high-quality image in the website thumbnail section. The plugin will automatically crop and optimize it to a perfect 16:9 ratio for your grid cards.', 'simple-demo-previewer' ); ?></li>
 							</ul>
 
 							<hr style="margin: 20px 0;">
@@ -152,12 +158,8 @@ function sdp_hub_setup_page_html() {
 							
 							<hr style="margin: 20px 0;">
 							
-							<h3><?php esc_html_e( '4. Custom Sorting (Menu Order)', 'simple-demo-previewer' ); ?></h3>
-							<p><?php esc_html_e( 'To change the order of your sites, look for the "Post Attributes" box on the right-hand sidebar when editing a Demo Site.', 'simple-demo-previewer' ); ?></p>
-							<ul style="list-style-type: disc; margin-left: 20px;">
-								<li><?php esc_html_e( 'Lower numbers (like 0 or 1) appear first.', 'simple-demo-previewer' ); ?></li>
-								<li><?php esc_html_e( 'For drag-and-drop sorting, we recommend the free "Simple Custom Post Order" plugin.', 'simple-demo-previewer' ); ?></li>
-							</ul>
+							<h3><?php esc_html_e( '4. Custom Sorting (Drag and Drop)', 'simple-demo-previewer' ); ?></h3>
+							<p><?php esc_html_e( 'To change the order of your sites, simply go to your "All Demo Sites" page, click on any row, and drag it up or down. The order saves automatically and matches your live grid exactly.', 'simple-demo-previewer' ); ?></p>
 
 							<hr style="margin: 20px 0;">
 
@@ -245,7 +247,20 @@ function sdp_hub_setup_page_html() {
 	<?php
 }
 
-// 6. Create the Custom Field (Meta Box) for the URL
+// -----------------------------------------------------------------------------
+// 6. RE-POSITION THE THUMBNAIL (FEATURED IMAGE) META BOX
+// -----------------------------------------------------------------------------
+add_action( 'do_meta_boxes', 'sdp_move_thumbnail_meta_box' );
+function sdp_move_thumbnail_meta_box() {
+	// Remove it from the right sidebar
+	remove_meta_box( 'postimagediv', 'demo_site', 'side' );
+	// Add it to the main content area (normal) below the URL settings
+	add_meta_box( 'postimagediv', __( 'Website Thumbnail', 'simple-demo-previewer' ), 'post_thumbnail_meta_box', 'demo_site', 'normal', 'default' );
+}
+
+// -----------------------------------------------------------------------------
+// 7. CREATE THE CUSTOM FIELD (META BOX) FOR THE URL
+// -----------------------------------------------------------------------------
 add_action( 'add_meta_boxes', 'sdp_add_meta_box' );
 function sdp_add_meta_box() {
 	add_meta_box( 'sdp_url_meta', __( 'Demo Site Settings', 'simple-demo-previewer' ), 'sdp_meta_box_html', 'demo_site', 'normal', 'high' );
@@ -258,12 +273,13 @@ function sdp_meta_box_html( $post ) {
 	<p>
 		<label for="sdp_demo_url"><strong><?php esc_html_e( 'Demo Website URL:', 'simple-demo-previewer' ); ?></strong></label><br>
 		<input type="url" id="sdp_demo_url" name="sdp_demo_url" value="<?php echo esc_url( $url ); ?>" style="width:100%; max-width: 600px; margin-top:5px;" placeholder="https://example.com/my-demo" required />
-		<br><small><?php esc_html_e( 'Enter the full URL of the site you want to display in the previewer.', 'simple-demo-previewer' ); ?></small>
 	</p>
 	<?php
 }
 
-// 7. Save the Custom Field Data (Updated with wp_unslash and sanitize_text_field)
+// -----------------------------------------------------------------------------
+// 8. SAVE THE CUSTOM FIELD DATA
+// -----------------------------------------------------------------------------
 add_action( 'save_post', 'sdp_save_meta_box' );
 function sdp_save_meta_box( $post_id ) {
 	if ( ! isset( $_POST['sdp_meta_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['sdp_meta_nonce'] ) ), 'sdp_save_meta' ) ) return;
@@ -275,14 +291,15 @@ function sdp_save_meta_box( $post_id ) {
 	}
 }
 
-// 8. Override the Page Template to show the Fullscreen Iframe
+// -----------------------------------------------------------------------------
+// 9. OVERRIDE THE PAGE TEMPLATE TO SHOW THE FULLSCREEN IFRAME
+// -----------------------------------------------------------------------------
 add_action( 'template_redirect', 'sdp_render_preview_page' );
 function sdp_render_preview_page() {
 	if ( is_singular( 'demo_site' ) ) {
 		$post_id = get_the_ID();
 		$title = get_the_title();
 		$demo_url = get_post_meta( $post_id, '_sdp_demo_url', true );
-		
 		if ( empty( $demo_url ) ) { $demo_url = home_url(); }
 		$close_url = home_url( '/example-sites/' );
 
@@ -299,70 +316,51 @@ function sdp_render_preview_page() {
 		<head>
 			<meta charset="<?php bloginfo( 'charset' ); ?>">
 			<meta name="viewport" content="width=device-width, initial-scale=1.0">
-			
-			<?php // Dynamically inject the NoIndex tag based on user settings ?>
 			<?php if ( $disable_seo === 'yes' ) : ?>
 				<meta name="robots" content="noindex, nofollow" />
 			<?php endif; ?>
-
 			<title><?php echo esc_html( $title . ' - ' . $site_name ); ?></title>
 			<style>
-				body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; background: #e5e7eb; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif; }
+				body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; background: #e5e7eb; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
 				#stp-previewer-wrapper { display: flex; flex-direction: column; height: 100vh; width: 100vw; }
 				.stp-topbar { height: 60px; background: <?php echo esc_attr( $topbar_bg ); ?>; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); color: <?php echo esc_attr( $topbar_text ); ?>; flex-shrink: 0; }
-				.stp-demo-dropdown { padding: 8px 12px; font-size: 15px; font-weight: 600; color: #374151; background-color: #f9fafb; border: 1px solid #d1d5db; border-radius: 6px; cursor: pointer; outline: none; transition: border-color 0.2s, box-shadow 0.2s; max-width: 250px; }
-				.stp-demo-dropdown:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
+				.stp-demo-dropdown { padding: 8px 12px; font-size: 15px; font-weight: 600; color: #374151; background-color: #f9fafb; border: 1px solid #d1d5db; border-radius: 6px; cursor: pointer; max-width: 250px; }
 				.stp-device-toggles { display: flex; gap: 15px; }
 				.stp-btn { background: none; border: none; cursor: pointer; color: <?php echo esc_attr( $topbar_text ); ?>; opacity: 0.5; padding: 5px; transition: opacity 0.2s; }
 				.stp-btn:hover, .stp-btn.active { opacity: 1; }
-				.stp-close a { color: <?php echo esc_attr( $topbar_text ); ?>; opacity: 0.7; text-decoration: none; display: flex; align-items: center; transition: opacity 0.2s; }
+				.stp-close a { color: <?php echo esc_attr( $topbar_text ); ?>; opacity: 0.7; display: flex; align-items: center; transition: opacity 0.2s; }
 				.stp-close a:hover { opacity: 1; color: #ef4444; }
 				.stp-iframe-container { flex-grow: 1; display: flex; justify-content: center; align-items: flex-start; overflow: hidden; }
-				#stp-iframe { width: 100%; height: 100%; background: #fff; box-shadow: 0 10px 25px rgba(0,0,0,0.1); transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: none; }
+				#stp-iframe { width: 100%; height: 100%; background: #fff; transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: none; }
 			</style>
 		</head>
 		<body>
 			<div id="stp-previewer-wrapper">
 				<div class="stp-topbar">
 					<div class="stp-title">
-						<select id="stp-demo-selector" class="stp-demo-dropdown" aria-label="<?php esc_attr_e( 'Select a Demo Site', 'simple-demo-previewer' ); ?>">
+						<select id="stp-demo-selector" class="stp-demo-dropdown">
 							<?php foreach ( $all_demos as $demo ) : ?>
-								<option value="<?php echo esc_url( get_permalink( $demo->ID ) ); ?>" <?php selected( $post_id, $demo->ID ); ?>>
-									<?php echo esc_html( $demo->post_title ); ?>
-								</option>
+								<option value="<?php echo esc_url( get_permalink( $demo->ID ) ); ?>" <?php selected( $post_id, $demo->ID ); ?>><?php echo esc_html( $demo->post_title ); ?></option>
 							<?php endforeach; ?>
 						</select>
 					</div>
-					
 					<div class="stp-device-toggles">
-						<button class="stp-btn active" data-width="100%" aria-label="<?php esc_attr_e( 'Desktop View', 'simple-demo-previewer' ); ?>" title="<?php esc_attr_e( 'Desktop View', 'simple-demo-previewer' ); ?>">
-							<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
-						</button>
-						<button class="stp-btn" data-width="768px" aria-label="<?php esc_attr_e( 'Tablet View', 'simple-demo-previewer' ); ?>" title="<?php esc_attr_e( 'Tablet View', 'simple-demo-previewer' ); ?>">
-							<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
-						</button>
-						<button class="stp-btn" data-width="375px" aria-label="<?php esc_attr_e( 'Mobile View', 'simple-demo-previewer' ); ?>" title="<?php esc_attr_e( 'Mobile View', 'simple-demo-previewer' ); ?>">
-							<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
-						</button>
+						<button class="stp-btn active" data-width="100%"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg></button>
+						<button class="stp-btn" data-width="768px"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg></button>
+						<button class="stp-btn" data-width="375px"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg></button>
 					</div>
-
 					<div class="stp-close">
-						<a href="<?php echo esc_url( $close_url ); ?>" title="<?php esc_attr_e( 'Close Preview', 'simple-demo-previewer' ); ?>" aria-label="<?php esc_attr_e( 'Close Preview', 'simple-demo-previewer' ); ?>">
-							<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-						</a>
+						<a href="<?php echo esc_url( $close_url ); ?>"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></a>
 					</div>
 				</div>
-
 				<div class="stp-iframe-container">
 					<iframe id="stp-iframe" src="<?php echo esc_url( $demo_url ); ?>" title="<?php echo esc_attr( $title ); ?>"></iframe>
 				</div>
 			</div>
-
 			<script>
 				document.addEventListener('DOMContentLoaded', function() {
 					const buttons = document.querySelectorAll('.stp-btn');
 					const iframe = document.getElementById('stp-iframe');
-
 					buttons.forEach(button => {
 						button.addEventListener('click', function() {
 							buttons.forEach(btn => btn.classList.remove('active'));
@@ -370,12 +368,9 @@ function sdp_render_preview_page() {
 							iframe.style.width = this.getAttribute('data-width');
 						});
 					});
-
 					const demoSelector = document.getElementById('stp-demo-selector');
 					if (demoSelector) {
-						demoSelector.addEventListener('change', function() {
-							window.location.href = this.value; 
-						});
+						demoSelector.addEventListener('change', function() { window.location.href = this.value; });
 					}
 				});
 			</script>
@@ -386,18 +381,17 @@ function sdp_render_preview_page() {
 	}
 }
 
-// 9. Clean up Admin Interface (Conditionally Remove Heavy SEO Meta Boxes)
+// -----------------------------------------------------------------------------
+// 10. CLEAN UP ADMIN INTERFACE (CONDITIONALLY REMOVE HEAVY SEO META BOXES)
+// -----------------------------------------------------------------------------
 add_action( 'add_meta_boxes', 'sdp_remove_seo_meta_boxes', 99 );
 function sdp_remove_seo_meta_boxes() {
 	if ( get_option( 'sdp_disable_seo', 'yes' ) === 'yes' ) {
-		// Remove Yoast SEO
-		remove_meta_box( 'wpseo_meta', 'demo_site', 'normal' );
-		// Remove All in One SEO (AIOSEO)
-		remove_meta_box( 'aiosp', 'demo_site', 'normal' );
+		remove_meta_box( 'wpseo_meta', 'demo_site', 'normal' ); // Yoast
+		remove_meta_box( 'aiosp', 'demo_site', 'normal' ); // AIOSEO
 	}
 }
 
-// Disable Rank Math safely (Conditionally)
 add_filter( 'rank_math/excluded_post_types', function( $post_types ) {
 	if ( get_option( 'sdp_disable_seo', 'yes' ) === 'yes' ) {
 		$post_types['demo_site'] = 'demo_site';
@@ -405,7 +399,9 @@ add_filter( 'rank_math/excluded_post_types', function( $post_types ) {
 	return $post_types;
 });
 
-// 10. Create the beautiful "Hub" Shortcode with Featured Images & Dynamic Colors
+// -----------------------------------------------------------------------------
+// 11. CREATE THE BEAUTIFUL "HUB" SHORTCODE
+// -----------------------------------------------------------------------------
 add_shortcode( 'demo_sites_hub', 'sdp_hub_shortcode' );
 function sdp_hub_shortcode() {
 	$demos = get_posts( array(
@@ -425,22 +421,10 @@ function sdp_hub_shortcode() {
 
 	ob_start();
 	?>
-	<div class="sdp-hub-wrapper" style="max-width: 1200px; margin: 0 auto; padding: 20px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;">
-		<div class="sdp-hub-header" style="text-align: center; margin-bottom: 50px;">
-			<h2 style="margin-bottom: 20px; font-size: 28px; color: #1f2937;"><?php esc_html_e( 'Select a demo site below', 'simple-demo-previewer' ); ?></h2>
-			<select class="sdp-hub-dropdown" onchange="if(this.value) window.location.href=this.value;" style="padding: 12px 20px; font-size: 16px; font-weight: 500; color: #374151; background-color: #f9fafb; border: 1px solid #d1d5db; border-radius: 8px; cursor: pointer; outline: none; transition: all 0.2s; max-width: 350px; width: 100%; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
-				<option value=""><?php esc_html_e( '-- Choose a Design --', 'simple-demo-previewer' ); ?></option>
-				<?php foreach ( $demos as $demo ) : ?>
-					<option value="<?php echo esc_url( get_permalink( $demo->ID ) ); ?>">
-						<?php echo esc_html( $demo->post_title ); ?>
-					</option>
-				<?php endforeach; ?>
-			</select>
-		</div>
+	<div class="sdp-hub-wrapper" style="max-width: 1200px; margin: 0 auto; padding: 20px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
 		<div class="sdp-demo-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 30px;">
 			<?php foreach ( $demos as $demo ) : ?>
 				<div class="sdp-demo-card">
-					
 					<?php if ( has_post_thumbnail( $demo->ID ) ) : ?>
 						<div class="sdp-demo-thumbnail">
 							<a href="<?php echo esc_url( get_permalink( $demo->ID ) ); ?>">
@@ -448,37 +432,180 @@ function sdp_hub_shortcode() {
 							</a>
 						</div>
 					<?php endif; ?>
-
 					<h3 class="sdp-demo-title"><?php echo esc_html( $demo->post_title ); ?></h3>
-					
-					<a href="<?php echo esc_url( get_permalink( $demo->ID ) ); ?>" class="sdp-demo-btn">
-						<?php esc_html_e( 'Launch Preview', 'simple-demo-previewer' ); ?>
-					</a>
+					<a href="<?php echo esc_url( get_permalink( $demo->ID ) ); ?>" class="sdp-demo-btn"><?php esc_html_e( 'Launch Preview', 'simple-demo-previewer' ); ?></a>
 				</div>
 			<?php endforeach; ?>
 		</div>
 	</div>
 	<style>
-		.sdp-hub-dropdown:hover { border-color: #9ca3af; }
-		.sdp-hub-dropdown:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
 		.sdp-demo-card { background: #ffffff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px; text-align: center; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); transition: transform 0.2s ease, box-shadow 0.2s ease; display: flex; flex-direction: column; justify-content: space-between; min-height: 200px; }
-		.sdp-demo-card:hover { transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); border-color: #cbd5e1; }
-		.sdp-demo-thumbnail { margin-bottom: 20px; overflow: hidden; border-radius: 8px; border: 1px solid #f3f4f6; }
+		.sdp-demo-card:hover { transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); border-color: #cbd5e1; }
+		.sdp-demo-thumbnail { margin-bottom: 20px; overflow: hidden; border-radius: 8px; }
 		.sdp-demo-thumbnail img { width: 100%; height: auto; aspect-ratio: 16/9; object-fit: cover; display: block; transition: transform 0.3s ease; }
 		.sdp-demo-card:hover .sdp-demo-thumbnail img { transform: scale(1.05); }
 		.sdp-demo-title { margin: 0 0 20px 0; font-size: 20px; color: #1f2937; font-weight: 600; }
-		.sdp-demo-btn { display: inline-block; background: <?php echo esc_attr( $button_bg ); ?> !important; color: <?php echo esc_attr( $button_text ); ?> !important; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: 500; transition: filter 0.2s ease, transform 0.1s ease; }
+		.sdp-demo-btn { display: inline-block; background: <?php echo esc_attr( $button_bg ); ?> !important; color: <?php echo esc_attr( $button_text ); ?> !important; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: 500; transition: filter 0.2s; }
 		.sdp-demo-btn:hover { filter: brightness(0.85); color: <?php echo esc_attr( $button_text ); ?>; }
-		.sdp-demo-btn:active { transform: scale(0.98); }
 	</style>
 	<?php
 	return ob_get_clean();
 }
 
-// 11. Add Settings Link directly to the Plugins Page
+// -----------------------------------------------------------------------------
+// 12. ADD SETTINGS LINK TO PLUGINS PAGE
+// -----------------------------------------------------------------------------
 add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), 'sdp_add_settings_link' );
 function sdp_add_settings_link( $links ) {
 	$settings_link = '<a href="' . admin_url( 'edit.php?post_type=demo_site&page=sdp-hub-setup' ) . '">' . __( 'Settings', 'simple-demo-previewer' ) . '</a>';
 	array_unshift( $links, $settings_link );
 	return $links;
+}
+
+// -----------------------------------------------------------------------------
+// 13. AUTO-ASSIGN MENU ORDER TO NEW POSTS (SAFELY)
+// -----------------------------------------------------------------------------
+add_filter( 'wp_insert_post_data', 'sdp_auto_set_menu_order_on_create', 10, 2 );
+function sdp_auto_set_menu_order_on_create( $data, $postarr ) {
+	if ( $data['post_type'] === 'demo_site' && $data['menu_order'] == 0 ) {
+		$is_new_post = false;
+
+		if ( ! empty( $postarr['ID'] ) ) {
+			$existing_post = get_post( $postarr['ID'] );
+			if ( $existing_post && $existing_post->post_status === 'auto-draft' && $data['post_status'] !== 'auto-draft' ) {
+				$is_new_post = true;
+			}
+		} else {
+			$is_new_post = true;
+		}
+
+		if ( $is_new_post ) {
+			global $wpdb;
+			$max_order = $wpdb->get_var( "SELECT MAX(menu_order) FROM {$wpdb->posts} WHERE post_type = 'demo_site' AND post_status NOT IN ('auto-draft', 'trash')" );
+			$data['menu_order'] = $max_order ? (int) $max_order + 1 : 1;
+		}
+	}
+	return $data;
+}
+
+// -----------------------------------------------------------------------------
+// 14. ADD & POPULATE THE "ORDER" COLUMN IN THE ADMIN LIST
+// -----------------------------------------------------------------------------
+add_filter( 'manage_demo_site_posts_columns', 'sdp_add_order_column' );
+function sdp_add_order_column( $columns ) {
+	$new_columns = array();
+	foreach ( $columns as $key => $title ) {
+		$new_columns[$key] = $title;
+		if ( $key === 'title' ) {
+			$new_columns['menu_order'] = __( 'Order', 'simple-demo-previewer' );
+		}
+	}
+	return $new_columns;
+}
+
+add_action( 'manage_demo_site_posts_custom_column', 'sdp_fill_order_column', 10, 2 );
+function sdp_fill_order_column( $column, $post_id ) {
+	if ( $column === 'menu_order' ) {
+		echo esc_html( get_post( $post_id )->menu_order );
+	}
+}
+
+add_filter( 'manage_edit-demo_site_sortable_columns', 'sdp_make_order_column_sortable' );
+function sdp_make_order_column_sortable( $columns ) {
+	$columns['menu_order'] = 'menu_order';
+	return $columns;
+}
+
+// -----------------------------------------------------------------------------
+// 15. DEFAULT THE ADMIN LIST TO SORT BY MENU ORDER
+// -----------------------------------------------------------------------------
+add_action( 'pre_get_posts', 'sdp_default_admin_sort_order' );
+function sdp_default_admin_sort_order( $query ) {
+	if ( is_admin() && $query->is_main_query() && $query->get( 'post_type' ) === 'demo_site' ) {
+		if ( ! isset( $_GET['orderby'] ) ) {
+			$query->set( 'orderby', 'menu_order title' );
+			$query->set( 'order', 'ASC' );
+		}
+	}
+}
+
+// -----------------------------------------------------------------------------
+// 16. ENABLE DRAG-AND-DROP SORTING
+// -----------------------------------------------------------------------------
+add_action( 'admin_enqueue_scripts', 'sdp_enqueue_sortable_script' );
+function sdp_enqueue_sortable_script( $hook ) {
+	global $post_type;
+	if ( $hook === 'edit.php' && $post_type === 'demo_site' ) {
+		wp_enqueue_script( 'jquery-ui-sortable' );
+	}
+}
+
+add_action( 'admin_footer-edit.php', 'sdp_sortable_js' );
+function sdp_sortable_js() {
+	global $post_type;
+	if ( $post_type !== 'demo_site' ) return;
+	?>
+	<script type="text/javascript">
+	jQuery(document).ready(function($) {
+		$('table.wp-list-table #the-list').sortable({
+			items: 'tr',
+			cursor: 'move',
+			axis: 'y',
+			helper: function(e, tr) {
+				var $originals = tr.children();
+				var $helper = tr.clone();
+				$helper.children().each(function(index) {
+					$(this).width($originals.eq(index).width());
+				});
+				return $helper;
+			},
+			update: function(e, ui) {
+				var postIDs = $(this).sortable('toArray', { attribute: 'id' });
+				var sortedIDs = postIDs.map(function(id) { return id.replace('post-', ''); });
+
+				$.ajax({
+					url: ajaxurl,
+					type: 'POST',
+					data: {
+						action: 'sdp_update_post_order',
+						order: sortedIDs,
+						security: '<?php echo wp_create_nonce("sdp_sort_nonce"); ?>'
+					},
+					success: function() {
+						$('#the-list tr').css('transition', 'background-color 0.5s').css('background-color', '#f0f6fc');
+						setTimeout(function(){ $('#the-list tr').css('background-color', 'transparent'); }, 500);
+					}
+				});
+			}
+		});
+	});
+	</script>
+	<style>
+		table.wp-list-table #the-list tr { cursor: grab; }
+		table.wp-list-table #the-list tr:active { cursor: grabbing; }
+		.ui-sortable-helper { box-shadow: 0 5px 15px rgba(0,0,0,0.15); background: #fff !important; display: table; }
+	</style>
+	<?php
+}
+
+add_action( 'wp_ajax_sdp_update_post_order', 'sdp_save_drag_drop_order' );
+function sdp_save_drag_drop_order() {
+	check_ajax_referer( 'sdp_sort_nonce', 'security' );
+	if ( ! current_user_can( 'edit_posts' ) ) wp_die( 'Permission denied' );
+
+	if ( isset( $_POST['order'] ) && is_array( $_POST['order'] ) ) {
+		global $wpdb;
+		foreach ( $_POST['order'] as $index => $post_id ) {
+			$post_id = intval( $post_id );
+			$wpdb->update( 
+				$wpdb->posts, 
+				array( 'menu_order' => $index + 1 ), 
+				array( 'ID' => $post_id ),
+				array( '%d' ),
+				array( '%d' )
+			);
+			clean_post_cache( $post_id );
+		}
+	}
+	wp_send_json_success();
 }
