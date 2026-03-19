@@ -1,11 +1,9 @@
 === Simple Demo Previewer ===
-Contributors: rsmith4321
-Donate link: https://shorelinewebdesigns.com/
-Tags: theme preview, demo, portfolio, showcase, iframe
-Requires at least: 6.0
+Contributors: rsmith4321, Shoreline Web Designs
+Tags: demo previewer, theme directory, iframe preview, portfolio, showcase
+Requires at least: 5.0
 Tested up to: 6.9
-Stable tag: 1.9.2
-Requires PHP: 7.4
+Stable tag: 2.0.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -13,46 +11,55 @@ Automatically generates a beautiful, full-screen, responsive iframe previewer an
 
 == Description ==
 
-**The Story Behind the Plugin**
-When I was looking for a way to showcase my web design portfolio and templates, I hit a wall. Every "demo bar" or "theme previewer" plugin I found in the repository was either years out of date, weighed down by bloated code, or completely broke when viewed on a mobile device. I just wanted a clean, modern, and fully responsive way to let my clients preview my work—exactly like the big WordPress theme agencies do. Since I couldn't find one that met my standards, I decided to build it myself!
+Simple Demo Previewer is the ultimate tool for web designers, agencies, and theme developers who want to showcase their work professionally. It automatically generates a beautiful, full-screen, responsive iframe previewer so clients can test your sites on desktop, tablet, and mobile views.
 
-**What It Does**
-Simple Demo Previewer is the ultimate tool for web design agencies, theme developers, and freelancers who want to showcase their portfolio or template designs in a professional, interactive environment.
+The plugin also generates a beautiful, centralized "Hub" grid page to display all your available demos in one place.
 
-Upon activation, the plugin automatically generates a beautiful "Example Sites" directory grid. When a user clicks to view a site, it launches a custom, full-screen iframe app completely separate from your main theme's header and footer. 
-
-The previewer includes dynamic device-toggle icons so your potential clients can instantly see how your designs look on Desktop, Tablet, and Mobile devices!
-
-= Features =
-* **Automated Setup:** Automatically creates your directory Hub page upon activation.
-* **Custom Post Type:** Easily manage your demo URLs and featured images from a clean WordPress menu.
-* **Responsive Device Toggles:** Let users preview your sites on Desktop, Tablet, and Mobile instantly.
-* **Dynamic Dropdown Navigation:** Users can switch between your different demo sites without ever leaving the preview app.
-* **Custom Branding:** Easily change the background colors, button colors, and text colors of the app from the settings menu to match your brand.
-* **SEO Protection:** Automatically adds a "noindex" tag to your preview pages and safely disables extra meta boxes (like Yoast and Rank Math) on your demo posts to prevent duplicate content penalties.
+**Key Features:**
+* **Full-Screen Previewer:** Clients can view your sites with a sleek top bar featuring device toggles (Desktop, Tablet, Mobile).
+* **Central Hub Page:** Automatically creates a gorgeous grid directory of all your demo sites.
+* **Drag-and-Drop Sorting:** Easily reorder how your sites appear on the frontend grid by simply dragging and dropping rows in the WordPress admin area.
+* **Smart SEO Protection:** Prevents duplicate content penalties by hiding SEO meta boxes on demo pages and automatically applying `noindex` tags to the iframe wrappers.
+* **Customizable Colors:** Easily match the previewer top bar and grid buttons to your own brand colors.
+* **Foolproof UI:** Designed with non-technical users in mind, featuring clear instructions and logical setup flows.
 
 == Installation ==
 
-1. Upload the `simple-demo-previewer` folder to the `/wp-content/plugins/` directory.
-2. Activate the plugin through the 'Plugins' menu in WordPress.
-3. A new page called "Example Sites" will automatically be created for you.
-4. Navigate to **Demo Sites > Add New Demo Site** in your dashboard to start adding your templates!
+1. Upload the `simple-demo-previewer` folder to the `/wp-content/plugins/` directory, or install it directly through the WordPress plugins screen.
+2. Activate the plugin through the 'Plugins' screen in WordPress.
+3. Upon activation, a new "Example Sites" page will be automatically generated for you.
+4. Navigate to **Demo Sites > Getting Started** in your WordPress dashboard to configure your brand colors and view the setup instructions.
+5. Go to **Demo Sites > Add New Demo Site** to start adding your projects!
 
 == Frequently Asked Questions ==
 
-= Why did it create an "Example Sites" page? =
-This is your Hub page! It uses the `[demo_sites_hub]` shortcode to display a beautiful grid of all your templates. If you accidentally delete it, you can regenerate it anytime by going to **Demo Sites > Getting Started**.
+= How do I change the order of my demo sites? =
+It's incredibly easy! Go to **Demo Sites > All Demo Sites**. Simply click and drag any row up or down to change its position. The new order will automatically save and instantly update your live Hub page grid.
 
-= Why aren't my images showing up in the directory grid? =
-Make sure you upload a "Featured Image" when creating or editing a Demo Site. The plugin will automatically optimize it into a perfect 16:9 thumbnail for your grid.
+= I accidentally deleted the Hub page, what do I do? =
+Don't worry! Go to **Demo Sites > Getting Started** and scroll down to the "Page Setup Tool". Click the button to instantly regenerate the page with the correct shortcode. You can also manually create a page and paste the `[demo_sites_hub]` shortcode.
 
-= My previewer is showing a blank white screen? =
-Some websites (like Google or Facebook) use security settings to block their sites from being loaded inside iframes. Simple Demo Previewer works perfectly for your own domains, subdomains, and standard WordPress installations where you control the environment.
+= Why does it say "Disable SEO plugins" in the settings? =
+Because your demo pages load your actual live websites inside an iframe, allowing Google to index these preview pages can cause "duplicate content" penalties against your main sites. The plugin safely hides these preview pages from search engines so all your SEO value stays on your main websites where it belongs.
+
+== Screenshots ==
+
+1. The responsive full-screen iframe previewer.
+2. The automatic Hub directory grid.
+3. The intuitive Getting Started and Settings dashboard.
+4. Simple drag-and-drop admin sorting.
 
 == Changelog ==
 
-= 1.9.2 =
-* Addressed Plugin Check strict validation standards and updated WP core compatibility.
+= 2.0.0 =
+* **Major Feature:** Added intuitive drag-and-drop sorting to the All Demo Sites admin list. Changes save automatically via AJAX.
+* **Feature:** The WordPress admin list now visually matches the exact order of your frontend grid.
+* **Feature:** Added a dedicated "Order" column to the admin list for better visibility.
+* **UI Improvement:** Renamed the confusing "Featured Image" sidebar box to "Website Thumbnail" for a better user experience.
+* **UI Improvement:** Relocated the Website Thumbnail uploader to the main content column directly below the URL setting so users don't miss it.
+* **Fix:** Added automatic object cache flushing (Redis/Memcached) upon drag-and-drop reordering to ensure the live site updates instantly.
+* **Fix:** Rewrote the background auto-numbering logic to safely use the `wp_insert_post_data` filter, completely eliminating the risk of database infinite loops.
+* **Update:** Restored and expanded the "Getting Started" onboarding instructions to reflect the new drag-and-drop and thumbnail changes.
 
-= 1.9.1 =
-* Initial release. Includes automated hub generation, custom color settings, settings dashboard, and SEO protection features.
+= 1.9.2 =
+* Initial stable release and UI refinements.
