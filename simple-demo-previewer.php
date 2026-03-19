@@ -52,7 +52,7 @@ function sdp_plugin_activation() {
 }
 
 // -----------------------------------------------------------------------------
-// 3. REGISTER THE "DEMO SITES" CUSTOM POST TYPE (Updated Labels)
+// 3. REGISTER THE "DEMO SITES" CUSTOM POST TYPE
 // -----------------------------------------------------------------------------
 add_action( 'init', 'sdp_register_cpt' );
 function sdp_register_cpt() {
@@ -92,7 +92,7 @@ function sdp_add_admin_menu() {
 }
 
 // -----------------------------------------------------------------------------
-// 5. ADMIN SETTINGS & INSTRUCTIONS PAGE HTML (Updated Instructions)
+// 5. ADMIN SETTINGS & INSTRUCTIONS PAGE HTML
 // -----------------------------------------------------------------------------
 function sdp_hub_setup_page_html() {
 	if ( ! current_user_can( 'manage_options' ) ) return;
@@ -481,6 +481,7 @@ function sdp_auto_set_menu_order_on_create( $data, $postarr ) {
 
 		if ( $is_new_post ) {
 			global $wpdb;
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 			$max_order = $wpdb->get_var( "SELECT MAX(menu_order) FROM {$wpdb->posts} WHERE post_type = 'demo_site' AND post_status NOT IN ('auto-draft', 'trash')" );
 			$data['menu_order'] = $max_order ? (int) $max_order + 1 : 1;
 		}
@@ -522,6 +523,7 @@ function sdp_make_order_column_sortable( $columns ) {
 add_action( 'pre_get_posts', 'sdp_default_admin_sort_order' );
 function sdp_default_admin_sort_order( $query ) {
 	if ( is_admin() && $query->is_main_query() && $query->get( 'post_type' ) === 'demo_site' ) {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( ! isset( $_GET['orderby'] ) ) {
 			$query->set( 'orderby', 'menu_order title' );
 			$query->set( 'order', 'ASC' );
@@ -569,7 +571,7 @@ function sdp_sortable_js() {
 					data: {
 						action: 'sdp_update_post_order',
 						order: sortedIDs,
-						security: '<?php echo wp_create_nonce("sdp_sort_nonce"); ?>'
+						security: '<?php echo esc_html( wp_create_nonce("sdp_sort_nonce") ); ?>'
 					},
 					success: function() {
 						$('#the-list tr').css('transition', 'background-color 0.5s').css('background-color', '#f0f6fc');
@@ -594,9 +596,13 @@ function sdp_save_drag_drop_order() {
 	if ( ! current_user_can( 'edit_posts' ) ) wp_die( 'Permission denied' );
 
 	if ( isset( $_POST['order'] ) && is_array( $_POST['order'] ) ) {
+		
+		// Sanitize the array of IDs by ensuring they are all unslashed positive integers
+		$sanitized_order = array_map( 'absint', wp_unslash( $_POST['order'] ) );
+		
 		global $wpdb;
-		foreach ( $_POST['order'] as $index => $post_id ) {
-			$post_id = intval( $post_id );
+		foreach ( $sanitized_order as $index => $post_id ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 			$wpdb->update( 
 				$wpdb->posts, 
 				array( 'menu_order' => $index + 1 ), 
