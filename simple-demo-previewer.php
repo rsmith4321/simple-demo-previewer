@@ -3,7 +3,7 @@
  * Plugin Name: Simple Demo Previewer
  * Plugin URI: https://github.com/rsmith4321/simple-demo-previewer
  * Description: Automatically generates a beautiful, full-screen, responsive iframe previewer and a central hub page to show off your website themes. Includes drag-and-drop ordering.
- * Version: 2.0.0
+ * Version: 2.1
  * Author: Shoreline Web Designs
  * Author URI: https://shorelinewebdesigns.com/
  * Text Domain: simple-demo-previewer
@@ -75,6 +75,80 @@ function sdp_register_cpt() {
 		'rewrite'     => array( 'slug' => 'examples' ),
 	));
 }
+// -----------------------------------------------------------------------------
+// 3.5 REGISTER DEMO CATEGORIES (TAXONOMY)
+// -----------------------------------------------------------------------------
+add_action( 'init', 'sdp_register_taxonomy' );
+function sdp_register_taxonomy() {
+	register_taxonomy( 'demo_type', array( 'demo_site' ), array(
+		'labels' => array(
+			'name'              => __( 'Categories', 'simple-demo-previewer' ),
+			'singular_name'     => __( 'Category', 'simple-demo-previewer' ),
+			'menu_name'         => __( 'Categories', 'simple-demo-previewer' ),
+			'add_new_item'      => __( 'Add New Category', 'simple-demo-previewer' ),
+		),
+		'hierarchical'      => true, // Acts like standard WordPress categories (checkboxes)
+		'show_ui'           => true,
+		'show_admin_column' => true, // Adds a helpful column in your wp-admin list!
+		'rewrite'           => array( 'slug' => 'demo-category' ),
+	));
+}
+// -----------------------------------------------------------------------------
+// 3.6 ADD CUSTOM "ORDER" FIELD TO CATEGORIES
+// -----------------------------------------------------------------------------
+
+// 1. Add field to "Add New Category" screen
+add_action( 'demo_type_add_form_fields', 'sdp_add_category_order_field' );
+function sdp_add_category_order_field() {
+	?>
+	<div class="form-field">
+		<label for="term_order"><?php esc_html_e( 'Display Order', 'simple-demo-previewer' ); ?></label>
+		<input type="number" name="term_order" id="term_order" value="0" />
+		<p class="description"><?php esc_html_e( 'Enter a number to sort this category in the preview dropdown (e.g., 1 for first, 2 for second).', 'simple-demo-previewer' ); ?></p>
+	</div>
+	<?php
+}
+
+// 2. Add field to "Edit Category" screen
+add_action( 'demo_type_edit_form_fields', 'sdp_edit_category_order_field' );
+function sdp_edit_category_order_field( $term ) {
+	$order = get_term_meta( $term->term_id, 'term_order', true );
+	if ( $order === '' ) { $order = 0; }
+	?>
+	<tr class="form-field">
+		<th scope="row" valign="top"><label for="term_order"><?php esc_html_e( 'Display Order', 'simple-demo-previewer' ); ?></label></th>
+		<td>
+			<input type="number" name="term_order" id="term_order" value="<?php echo esc_attr( $order ); ?>" />
+			<p class="description"><?php esc_html_e( 'Enter a number to sort this category in the preview dropdown (e.g., 1 for first, 2 for second).', 'simple-demo-previewer' ); ?></p>
+		</td>
+	</tr>
+	<?php
+}
+
+// 3. Save the custom field data
+add_action( 'saved_demo_type', 'sdp_save_category_order' );
+add_action( 'created_demo_type', 'sdp_save_category_order' );
+function sdp_save_category_order( $term_id ) {
+	if ( isset( $_POST['term_order'] ) ) {
+		update_term_meta( $term_id, 'term_order', absint( $_POST['term_order'] ) );
+	}
+}
+
+// 4. Add "Order" column to the Categories list table
+add_filter( 'manage_edit-demo_type_columns', 'sdp_add_category_order_column' );
+function sdp_add_category_order_column( $columns ) {
+	$columns['term_order'] = __( 'Order', 'simple-demo-previewer' );
+	return $columns;
+}
+
+add_filter( 'manage_demo_type_custom_column', 'sdp_fill_category_order_column', 10, 3 );
+function sdp_fill_category_order_column( $content, $column_name, $term_id ) {
+	if ( $column_name === 'term_order' ) {
+		$order = get_term_meta( $term_id, 'term_order', true );
+		$content = ( $order !== '' ) ? esc_html( $order ) : '0';
+	}
+	return $content;
+}
 
 // -----------------------------------------------------------------------------
 // 4. CREATE THE ADMIN SUBMENU
@@ -133,11 +207,12 @@ function sdp_hub_setup_page_html() {
 						<h2 class="hndle" style="padding: 15px;"><span><?php esc_html_e( '📖 How to Create Your Demo Directory', 'simple-demo-previewer' ); ?></span></h2>
 						<div class="inside" style="padding: 0 15px 15px;">
 							
-							<h3><?php esc_html_e( '1. Add Your Demo Sites', 'simple-demo-previewer' ); ?></h3>
+							<h3><?php esc_html_e( '1. Add & Categorize Your Demo Sites', 'simple-demo-previewer' ); ?></h3>
 							<p><?php esc_html_e( 'Navigate to ', 'simple-demo-previewer' ); ?><strong><?php esc_html_e( 'Demo Sites > Add New Demo Site', 'simple-demo-previewer' ); ?></strong>.</p>
 							<ul style="list-style-type: disc; margin-left: 20px;">
 								<li><strong><?php esc_html_e( 'Title:', 'simple-demo-previewer' ); ?></strong> <?php esc_html_e( 'Enter the name of your template or project.', 'simple-demo-previewer' ); ?></li>
 								<li><strong><?php esc_html_e( 'URL:', 'simple-demo-previewer' ); ?></strong> <?php esc_html_e( 'Scroll down to the "Demo Site Settings" box and paste the live URL of the site you want to display in the previewer.', 'simple-demo-previewer' ); ?></li>
+								<li><strong><?php esc_html_e( 'Category:', 'simple-demo-previewer' ); ?></strong> <?php esc_html_e( 'Use the Categories box on the right sidebar to separate your "Real Sites" from your "Templates".', 'simple-demo-previewer' ); ?></li>
 							</ul>
 
 							<hr style="margin: 20px 0;">
@@ -151,10 +226,16 @@ function sdp_hub_setup_page_html() {
 
 							<hr style="margin: 20px 0;">
 
-							<h3><?php esc_html_e( '3. View Your Hub Page', 'simple-demo-previewer' ); ?></h3>
-							<p><?php esc_html_e( 'The plugin automatically generated a page called ', 'simple-demo-previewer' ); ?><strong><?php esc_html_e( '"Example Sites"', 'simple-demo-previewer' ); ?></strong> <?php esc_html_e( 'upon activation. You can find this in your standard WordPress ', 'simple-demo-previewer' ); ?><strong><?php esc_html_e( 'Pages', 'simple-demo-previewer' ); ?></strong> <?php esc_html_e( 'menu.', 'simple-demo-previewer' ); ?></p>
-							<p><?php esc_html_e( 'If you wish to display your directory on a different page, simply paste this shortcode anywhere on your site:', 'simple-demo-previewer' ); ?></p>
+							<h3><?php esc_html_e( '3. Display Your Hub Pages', 'simple-demo-previewer' ); ?></h3>
+							<p><?php esc_html_e( 'The plugin automatically generated a page called ', 'simple-demo-previewer' ); ?><strong><?php esc_html_e( '"Example Sites"', 'simple-demo-previewer' ); ?></strong> <?php esc_html_e( 'upon activation. You can find this in your standard WordPress Pages menu.', 'simple-demo-previewer' ); ?></p>
+							
+							<p><strong><?php esc_html_e( 'Show All Sites:', 'simple-demo-previewer' ); ?></strong><br>
+							<?php esc_html_e( 'To display your entire directory, use the standard shortcode:', 'simple-demo-previewer' ); ?></p>
 							<p><code style="font-size: 16px; padding: 5px 10px; display: inline-block;">[demo_sites_hub]</code></p>
+							
+							<p style="margin-top: 15px;"><strong><?php esc_html_e( 'Filter By Category:', 'simple-demo-previewer' ); ?></strong><br>
+							<?php esc_html_e( 'To separate your grids, you can use the shortcode with a category slug. For example, to show only your "Real Sites" category:', 'simple-demo-previewer' ); ?></p>
+							<p><code style="font-size: 16px; padding: 5px 10px; display: inline-block;">[demo_sites_hub category="real-sites"]</code></p>
 							
 							<hr style="margin: 20px 0;">
 							
@@ -246,7 +327,6 @@ function sdp_hub_setup_page_html() {
 	</div>
 	<?php
 }
-
 // -----------------------------------------------------------------------------
 // 6. RE-POSITION THE THUMBNAIL (FEATURED IMAGE) META BOX
 // -----------------------------------------------------------------------------
@@ -310,6 +390,53 @@ function sdp_render_preview_page() {
 		$topbar_text = get_option( 'sdp_topbar_text', '#333333' );
 		$disable_seo = get_option( 'sdp_disable_seo', 'yes' );
 
+		// 1. Get all categories and sort them by our custom "Display Order" number
+		$terms = get_terms( array( 'taxonomy' => 'demo_type', 'hide_empty' => false ) );
+		$ordered_terms = array();
+		
+		if ( ! is_wp_error( $terms ) ) {
+			foreach ( $terms as $term ) {
+				$order = get_term_meta( $term->term_id, 'term_order', true );
+				$ordered_terms[] = array(
+					'name'  => $term->name,
+					'order' => $order !== '' ? (int) $order : 999 // Unordered categories go to the bottom
+				);
+			}
+			// Sort the array by the order number
+			usort( $ordered_terms, function($a, $b) {
+				return $a['order'] <=> $b['order'];
+			});
+		}
+
+		// 2. Prepare our empty groups in the correct order
+		$grouped_demos = array();
+		foreach ( $ordered_terms as $t ) {
+			$grouped_demos[ $t['name'] ] = array();
+		}
+		$grouped_demos['Other'] = array(); // Fallback for uncategorized sites
+
+		// 3. Loop through all sites and drop them into their assigned group
+		foreach ( $all_demos as $demo ) {
+			$demo_terms = get_the_terms( $demo->ID, 'demo_type' );
+			if ( $demo_terms && ! is_wp_error( $demo_terms ) ) {
+				$group_name = $demo_terms[0]->name; // Grab the first category assigned to the site
+				if ( isset( $grouped_demos[ $group_name ] ) ) {
+					$grouped_demos[ $group_name ][] = $demo;
+				} else {
+					$grouped_demos['Other'][] = $demo;
+				}
+			} else {
+				$grouped_demos['Other'][] = $demo;
+			}
+		}
+
+		// 4. Remove any groups that don't have sites in them to keep the dropdown clean
+		foreach ( $grouped_demos as $key => $group ) {
+			if ( empty( $group ) ) {
+				unset( $grouped_demos[$key] );
+			}
+		}
+
 		?>
 		<!DOCTYPE html>
 		<html <?php language_attributes(); ?>>
@@ -325,6 +452,8 @@ function sdp_render_preview_page() {
 				#stp-previewer-wrapper { display: flex; flex-direction: column; height: 100vh; width: 100vw; }
 				.stp-topbar { height: 60px; background: <?php echo esc_attr( $topbar_bg ); ?>; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); color: <?php echo esc_attr( $topbar_text ); ?>; flex-shrink: 0; }
 				.stp-demo-dropdown { padding: 8px 12px; font-size: 15px; font-weight: 600; color: #374151; background-color: #f9fafb; border: 1px solid #d1d5db; border-radius: 6px; cursor: pointer; max-width: 250px; }
+				.stp-demo-dropdown optgroup { font-weight: 700; color: #111827; }
+				.stp-demo-dropdown option { font-weight: normal; color: #374151; }
 				.stp-device-toggles { display: flex; gap: 15px; }
 				.stp-btn { background: none; border: none; cursor: pointer; color: <?php echo esc_attr( $topbar_text ); ?>; opacity: 0.5; padding: 5px; transition: opacity 0.2s; }
 				.stp-btn:hover, .stp-btn.active { opacity: 1; }
@@ -339,8 +468,14 @@ function sdp_render_preview_page() {
 				<div class="stp-topbar">
 					<div class="stp-title">
 						<select id="stp-demo-selector" class="stp-demo-dropdown">
-							<?php foreach ( $all_demos as $demo ) : ?>
-								<option value="<?php echo esc_url( get_permalink( $demo->ID ) ); ?>" <?php selected( $post_id, $demo->ID ); ?>><?php echo esc_html( $demo->post_title ); ?></option>
+							<?php foreach ( $grouped_demos as $group_name => $demos ) : ?>
+								<optgroup label="<?php echo esc_attr( $group_name ); ?>">
+									<?php foreach ( $demos as $demo ) : ?>
+										<option value="<?php echo esc_url( get_permalink( $demo->ID ) ); ?>" <?php selected( $post_id, $demo->ID ); ?>>
+											<?php echo esc_html( $demo->post_title ); ?>
+										</option>
+									<?php endforeach; ?>
+								</optgroup>
 							<?php endforeach; ?>
 						</select>
 					</div>
@@ -380,7 +515,6 @@ function sdp_render_preview_page() {
 		exit;
 	}
 }
-
 // -----------------------------------------------------------------------------
 // 10. CLEAN UP ADMIN INTERFACE (CONDITIONALLY REMOVE HEAVY SEO META BOXES)
 // -----------------------------------------------------------------------------
@@ -400,20 +534,38 @@ add_filter( 'rank_math/excluded_post_types', function( $post_types ) {
 });
 
 // -----------------------------------------------------------------------------
-// 11. CREATE THE BEAUTIFUL "HUB" SHORTCODE
+// 11. CREATE THE BEAUTIFUL "HUB" SHORTCODE (UPDATED FOR CATEGORIES)
 // -----------------------------------------------------------------------------
 add_shortcode( 'demo_sites_hub', 'sdp_hub_shortcode' );
-function sdp_hub_shortcode() {
-	$demos = get_posts( array(
+function sdp_hub_shortcode( $atts ) {
+	// Allow filtering by category slug via shortcode attribute
+	$atts = shortcode_atts( array(
+		'category' => '', 
+	), $atts, 'demo_sites_hub' );
+
+	$query_args = array(
 		'post_type'      => 'demo_site',
 		'posts_per_page' => -1,
 		'post_status'    => 'publish',
 		'orderby'        => 'menu_order title',
 		'order'          => 'ASC'
-	));
+	);
+
+	// If a category is specified in the shortcode, filter the query
+	if ( ! empty( $atts['category'] ) ) {
+		$query_args['tax_query'] = array(
+			array(
+				'taxonomy' => 'demo_type',
+				'field'    => 'slug',
+				'terms'    => sanitize_text_field( $atts['category'] ),
+			),
+		);
+	}
+
+	$demos = get_posts( $query_args );
 
 	if ( empty( $demos ) ) {
-		return '<p>' . esc_html__( 'You have not published any demo sites yet.', 'simple-demo-previewer' ) . '</p>';
+		return '<p>' . esc_html__( 'No demo sites found for this category.', 'simple-demo-previewer' ) . '</p>';
 	}
 
 	$button_bg = get_option( 'sdp_button_bg', '#2563eb' );
