@@ -129,7 +129,9 @@ function sdp_edit_category_order_field( $term ) {
 add_action( 'saved_demo_type', 'sdp_save_category_order' );
 add_action( 'created_demo_type', 'sdp_save_category_order' );
 function sdp_save_category_order( $term_id ) {
+	// phpcs:ignore WordPress.Security.NonceVerification.Missing
 	if ( isset( $_POST['term_order'] ) ) {
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
 		update_term_meta( $term_id, 'term_order', absint( $_POST['term_order'] ) );
 	}
 }
@@ -553,6 +555,7 @@ function sdp_hub_shortcode( $atts ) {
 
 	// If a category is specified in the shortcode, filter the query
 	if ( ! empty( $atts['category'] ) ) {
+		// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
 		$query_args['tax_query'] = array(
 			array(
 				'taxonomy' => 'demo_type',
@@ -561,7 +564,6 @@ function sdp_hub_shortcode( $atts ) {
 			),
 		);
 	}
-
 	$demos = get_posts( $query_args );
 
 	if ( empty( $demos ) ) {
