@@ -3,7 +3,7 @@ Contributors: rsmith4321, Shoreline Web Designs
 Tags: demo previewer, theme directory, iframe preview, portfolio, showcase
 Requires at least: 5.0
 Tested up to: 6.9
-Stable tag: 2.0.0
+Stable tag: 2.1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -16,8 +16,10 @@ Simple Demo Previewer is the ultimate tool for web designers, agencies, and them
 The plugin also generates a beautiful, centralized "Hub" grid page to display all your available demos in one place.
 
 **Key Features:**
+* **Categorize Your Demos:** Organize your portfolio by separating client work from starting templates using the built-in custom taxonomy.
+* **Smart Dropdown Grouping:** The previewer automatically groups your sites by category, making it easy for clients to navigate your different offerings.
 * **Full-Screen Previewer:** Clients can view your sites with a sleek top bar featuring device toggles (Desktop, Tablet, Mobile).
-* **Central Hub Page:** Automatically creates a gorgeous grid directory of all your demo sites.
+* **Central Hub Page:** Automatically creates a gorgeous grid directory of all your demo sites, which can be filtered by category via shortcode.
 * **Drag-and-Drop Sorting:** Easily reorder how your sites appear on the frontend grid by simply dragging and dropping rows in the WordPress admin area.
 * **Smart SEO Protection:** Prevents duplicate content penalties by hiding SEO meta boxes on demo pages and automatically applying `noindex` tags to the iframe wrappers.
 * **Customizable Colors:** Easily match the previewer top bar and grid buttons to your own brand colors.
@@ -29,9 +31,15 @@ The plugin also generates a beautiful, centralized "Hub" grid page to display al
 2. Activate the plugin through the 'Plugins' screen in WordPress.
 3. Upon activation, a new "Example Sites" page will be automatically generated for you.
 4. Navigate to **Demo Sites > Getting Started** in your WordPress dashboard to configure your brand colors and view the setup instructions.
-5. Go to **Demo Sites > Add New Demo Site** to start adding your projects!
+5. Go to **Demo Sites > Add New Demo Site** to start adding and categorizing your projects!
 
 == Frequently Asked Questions ==
+
+= How can I separate my Real Sites from Templates? =
+You can use the built-in "Categories" taxonomy. Create your categories (e.g., "Real Sites", "Templates"), assign your demo sites to them, and use the shortcode attribute to display specific grids on your pages: `[demo_sites_hub category="real-sites"]`.
+
+= How do I group sites in the previewer dropdown? =
+The plugin automatically groups your sites by category in the top-bar dropdown. You can even control the order of these groups by setting a custom "Display Order" number when creating or editing your categories!
 
 = How do I change the order of my demo sites? =
 It's incredibly easy! Go to **Demo Sites > All Demo Sites**. Simply click and drag any row up or down to change its position. The new order will automatically save and instantly update your live Hub page grid.
@@ -50,6 +58,13 @@ Because your demo pages load your actual live websites inside an iframe, allowin
 4. Simple drag-and-drop admin sorting.
 
 == Changelog ==
+
+= 2.1.0 =
+* **Major Feature:** Introduced a Custom Taxonomy (Categories) to easily organize and separate different types of demo sites (e.g., Real Sites vs. Templates).
+* **Feature:** Added a "Display Order" numerical field to Categories, allowing you to easily control the exact sorting order of your category groups.
+* **Feature:** The full-screen previewer dropdown now automatically groups your demo sites by category using `<optgroup>` tags and sorts them based on your custom Display Order.
+* **Feature:** Enhanced the `[demo_sites_hub]` shortcode to support category filtering via slug (e.g., `[demo_sites_hub category="templates"]`).
+* **Update:** Updated the "Getting Started" dashboard with new instructions for categorizing sites and using shortcode filters.
 
 = 2.0.0 =
 * **Major Feature:** Added intuitive drag-and-drop sorting to the All Demo Sites admin list. Changes save automatically via AJAX.
